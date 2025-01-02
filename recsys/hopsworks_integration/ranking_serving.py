@@ -32,10 +32,19 @@ class HopsworksRankingModel:
         ranking_model.save(local_model_path)
 
     @classmethod
-    def deploy(cls, project):
+    def deploy(cls, project, force=False):
         mr = project.get_model_registry()
         dataset_api = project.get_dataset_api()
+        ms = project.get_model_serving()
 
+        if force==False:
+            try:
+                deployment = ms.get_deployment(cls.deployment_name)
+                print(f"Found and using existing deployment for: {cls.deployment_name}")
+                return deployment
+            except hopsworks.RestAPIError as e: 
+                print(f"Could not find deployment: {cls.deployment_name}. Creating one...")
+        
         ranking_model = mr.get_best_model(
             name="ranking_model",
             metric="fscore",

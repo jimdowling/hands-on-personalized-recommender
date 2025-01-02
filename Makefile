@@ -2,8 +2,10 @@ install-python:
 	uv python install
 
 install:
-	uv venv
-	. .venv/bin/activate
+#	uv venv
+	#. .venv/bin/activate
+	conda install twofish clang -y
+	pip install uv
 	uv pip install --all-extras --requirement pyproject.toml
 
 start-ui:

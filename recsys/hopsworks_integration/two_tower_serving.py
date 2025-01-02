@@ -66,10 +66,20 @@ class HopsworksQueryModel:
         mr_query_model.save(local_model_path)  # Path to save the model
 
     @classmethod
-    def deploy(cls, project):
+    def deploy(cls, project, force=False):
         mr = project.get_model_registry()
         dataset_api = project.get_dataset_api()
 
+        ms = project.get_model_serving()
+
+        if force==False:
+            try:
+                deployment = ms.get_deployment(cls.deployment_name)
+                print(f"Found and using existing deployment for: {cls.deployment_name}")
+                return deployment
+            except hopsworks.RestAPIError as e: 
+                print(f"Could not find deployment: {cls.deployment_name}. Creating one...")
+        
         # Retrieve the 'query_model' from the Model Registry
         query_model = mr.get_model(
             name="query_model",
